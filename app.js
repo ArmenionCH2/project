@@ -10,7 +10,7 @@ let posts = [
     id: 1, category: 'lost', username: 'john_khen', initials: 'JK',
     itemName: 'Black Umbrella', description: 'Left it near the library entrance, has a wooden handle.',
     location: 'Main Library, Ground Floor', time: 'June 3, 2026 · 9:14 AM',
-    status: 'active', hasMedia: false, comments: [
+    status: 'active', hasMedia: true, image: 'images/umbrella.jpg', comments: [
       { user: 'carlo_hilo', initials: 'CH', text: 'Is it a folding type?' }
     ]
   },
@@ -18,13 +18,13 @@ let posts = [
     id: 2, category: 'found', username: 'carlo_hilo', initials: 'CH',
     itemName: 'Student ID Card', description: 'Found near the canteen. Name on card is partially visible.',
     location: 'Canteen Area', time: 'June 3, 2026 · 10:02 AM',
-    status: 'active', hasMedia: true, comments: []
+    status: 'active', hasMedia: true, image: 'images/idcard.jpg', comments: []
   },
   {
     id: 3, category: 'lost', username: 'justin_f', initials: 'JF',
     itemName: 'Scientific Calculator', description: 'Casio fx-991ES Plus, has a small scratch on the back cover.',
     location: 'Room 201, Engineering Bldg', time: 'June 2, 2026 · 3:45 PM',
-    status: 'active', hasMedia: false, comments: [
+    status: 'active', hasMedia: true, image: 'images/calculator.jpg', comments: [
       { user: 'john_khen', initials: 'JK', text: 'I think I saw one at the lost and found office!' }
     ]
   },
@@ -32,20 +32,20 @@ let posts = [
     id: 4, category: 'found', username: 'john_khen', initials: 'JK',
     itemName: 'Water Bottle (Blue)', description: 'Tumbler with stickers, found near the gymnasium.',
     location: 'Gymnasium Entrance', time: 'June 1, 2026 · 1:30 PM',
-    status: 'pending', hasMedia: true, comments: []
+    status: 'pending', hasMedia: true, image: 'images/waterbottle.jpg', comments: []
   },
   {
     id: 5, category: 'lost', username: 'carlo_hilo', initials: 'CH',
     itemName: 'Notebook (Math)', description: 'Green spiral notebook, has my name on the cover.',
     location: 'Room 305, CCS Building', time: 'May 31, 2026 · 11:00 AM',
-    status: 'pending', hasMedia: false, comments: []
+    status: 'pending', hasMedia: true, image: 'images/notebook.jpg', comments: []
   },
   {
     id: 6, category: 'lost', username: 'justin_f', initials: 'JF',
     itemName: 'Earphones',
     description: 'White wired earphones, left at the computer lab.',
     location: 'Computer Lab 1', time: 'May 30, 2026 · 2:15 PM',
-    status: 'resolved', hasMedia: false, comments: []
+    status: 'resolved', hasMedia: true, image: 'images/earphones.jpg', comments: []
   }
 ];
 
@@ -112,7 +112,7 @@ function renderFeed(filter = '') {
       <div class="post-item-name">${p.itemName}</div>
       <div class="post-desc">${p.description}</div>
       <div class="post-location"><span>📍</span> ${p.location}</div>
-      ${p.hasMedia ? `<div class="post-media-thumb">🖼️ Photo attached</div>` : ''}
+      ${p.hasMedia ? `<div class="post-media-thumb"><img src="${p.image}" alt="${p.itemName}" onerror="this.parentElement.innerHTML='🖼️ Photo attached'" /></div>` : ''}
     </div>
   `).join('');
 }
@@ -186,7 +186,7 @@ function openModal(postId) {
       <div class="post-item-name" style="font-size:20px; margin-bottom: 8px;">${post.itemName}</div>
       <div class="post-desc" style="font-size: 14px; margin-bottom: 10px;">${post.description}</div>
       <div class="post-location"><span>📍</span> ${post.location}</div>
-      ${post.hasMedia ? `<div class="post-media-thumb" style="height:180px; margin-top:14px;">🖼️ Photo attached</div>` : ''}
+      ${post.hasMedia ? `<div class="post-media-thumb" style="height:180px; margin-top:14px;"><img src="${post.image}" alt="${post.itemName}" onerror="this.parentElement.innerHTML='🖼️ Photo attached'" /></div>` : ''}
     </div>
   `;
 
