@@ -45,7 +45,7 @@ let posts = [
     itemName: 'Earphones',
     description: 'White wired earphones, left at the computer lab.',
     location: 'Computer Lab 1', time: 'May 30, 2026 · 2:15 PM',
-    status: 'resolved', hasMedia: true, image: 'images/earphones.jpg', comments: []
+    status: 'resolved', hasMedia: true, image: 'images/earphones.png', comments: []
   }
 ];
 
