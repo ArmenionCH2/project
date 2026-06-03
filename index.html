@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lost & Found — CHMSU</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- ========== REGISTER PAGE ========== -->
+  <div class="page active" id="page-register">
+    <div class="auth-container">
+      <div class="auth-brand">
+        <div class="brand-icon">🔍</div>
+        <h1>Lost<span>&</span>Found</h1>
+        <p>CHMSU Campus Recovery System</p>
+      </div>
+      <div class="auth-card">
+        <h2>Create Account</h2>
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" placeholder="account/reporter username" id="reg-username" />
+        </div>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="email to use" id="reg-email" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" placeholder="input password to use" id="reg-password" />
+        </div>
+        <div class="form-group">
+          <label>Confirm Password</label>
+          <input type="password" placeholder="retype password" id="reg-confirm" />
+        </div>
+        <button class="btn-primary" onclick="navigate('page-main')">Create Account</button>
+        <p class="auth-link">Already have an account? <a onclick="navigate('page-login')">Sign In</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== LOGIN PAGE ========== -->
+  <div class="page" id="page-login">
+    <div class="auth-container">
+      <div class="auth-brand">
+        <div class="brand-icon">🔍</div>
+        <h1>Lost<span>&</span>Found</h1>
+        <p>CHMSU Campus Recovery System</p>
+      </div>
+      <div class="auth-card">
+        <h2>Sign In</h2>
+        <div class="form-group">
+          <label>Username</label>
+          <input type="text" placeholder="account/reporter username" />
+        </div>
+        <div class="form-group">
+          <label>Password</label>
+          <input type="password" placeholder="password" />
+        </div>
+        <button class="btn-primary" onclick="navigate('page-main')">Sign In</button>
+        <button class="btn-secondary" onclick="navigate('page-main'); setAdmin()">Sign In as Admin</button>
+        <div class="auth-links-row">
+          <a onclick="navigate('page-register')">Don't have an account? Register</a>
+          <a onclick="navigate('page-forgot')">Forgot Password</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== FORGOT PASSWORD PAGE ========== -->
+  <div class="page" id="page-forgot">
+    <div class="auth-container">
+      <div class="auth-brand">
+        <div class="brand-icon">🔍</div>
+        <h1>Lost<span>&</span>Found</h1>
+        <p>CHMSU Campus Recovery System</p>
+      </div>
+      <div class="auth-card">
+        <h2>Forgot Password</h2>
+        <p class="form-hint">Enter your registered email to retrieve your username.</p>
+        <div class="form-group">
+          <label>Email</label>
+          <input type="email" placeholder="email inputable (char)" />
+        </div>
+        <button class="btn-primary" onclick="navigate('page-login')">Reset Password</button>
+        <p class="auth-link"><a onclick="navigate('page-login')">← Back to Login</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== MAIN NEWSFEED PAGE ========== -->
+  <div class="page" id="page-main">
+    <div class="app-layout">
+
+      <!-- Top Bar -->
+      <header class="topbar">
+        <div class="topbar-brand">
+          <span class="brand-icon-sm">🔍</span>
+          <span>Lost<b>&</b>Found</span>
+        </div>
+        <div class="search-bar">
+          <input type="text" placeholder="Search items..." id="search-input" oninput="filterPosts()" />
+          <button onclick="filterPosts()">Search</button>
+        </div>
+      </header>
+
+      <!-- Feed Tabs -->
+      <div class="feed-tabs">
+        <button class="tab-btn active" onclick="switchTab('lost', this)">Lost Feed</button>
+        <button class="tab-btn" onclick="switchTab('found', this)">Found Feed</button>
+      </div>
+
+      <!-- Feed Content -->
+      <div class="feed-content" id="feed-content">
+        <!-- Posts injected by JS -->
+      </div>
+
+      <!-- Bottom Nav -->
+      <nav class="bottom-nav">
+        <button onclick="navigate('page-main')" class="nav-btn active">
+          <span>🏠</span><small>Feed</small>
+        </button>
+        <button onclick="navigate('page-post')" class="nav-btn">
+          <span>➕</span><small>Post</small>
+        </button>
+        <button onclick="navigate('page-profile')" class="nav-btn">
+          <span>👤</span><small>Profile</small>
+        </button>
+        <button id="admin-nav-btn" onclick="navigate('page-admin')" class="nav-btn" style="display:none">
+          <span>🛡️</span><small>Admin</small>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ========== POST PAGE ========== -->
+  <div class="page" id="page-post">
+    <div class="app-layout">
+      <header class="topbar">
+        <button class="back-btn" onclick="navigate('page-main')">← Back</button>
+        <span class="topbar-title">Report Item</span>
+      </header>
+
+      <div class="post-form-wrap">
+        <div class="category-toggle">
+          <button class="cat-btn active" id="cat-lost" onclick="selectCategory('lost')">Lost Item</button>
+          <button class="cat-btn" id="cat-found" onclick="selectCategory('found')">Found Item</button>
+        </div>
+
+        <div class="form-group">
+          <label>Item Name</label>
+          <input type="text" placeholder="item name inputable (char)" id="post-name" />
+        </div>
+        <div class="form-group">
+          <label>Description</label>
+          <textarea placeholder="description inputable (char)" id="post-desc" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Location Found/Lost</label>
+          <input type="text" placeholder="location found/lost inputable (char)" id="post-location" />
+        </div>
+        <div class="form-group">
+          <label>Media Upload</label>
+          <div class="media-upload-box">
+            <span>📎 Tap to upload (png, jpeg, mp4)</span>
+            <input type="file" accept=".png,.jpeg,.jpg,.mp4" style="opacity:0;position:absolute;inset:0;cursor:pointer;" />
+          </div>
+        </div>
+        <button class="btn-primary" onclick="submitPost()">Submit Post</button>
+      </div>
+
+      <nav class="bottom-nav">
+        <button onclick="navigate('page-main')" class="nav-btn">
+          <span>🏠</span><small>Feed</small>
+        </button>
+        <button onclick="navigate('page-post')" class="nav-btn active">
+          <span>➕</span><small>Post</small>
+        </button>
+        <button onclick="navigate('page-profile')" class="nav-btn">
+          <span>👤</span><small>Profile</small>
+        </button>
+        <button id="admin-nav-btn2" onclick="navigate('page-admin')" class="nav-btn" style="display:none">
+          <span>🛡️</span><small>Admin</small>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ========== PROFILE PAGE ========== -->
+  <div class="page" id="page-profile">
+    <div class="app-layout">
+      <header class="topbar">
+        <button class="back-btn" onclick="navigate('page-main')">← Back</button>
+        <span class="topbar-title">Profile</span>
+      </header>
+
+      <div class="profile-wrap">
+        <div class="profile-header">
+          <div class="avatar-wrap">
+            <div class="avatar" id="profile-avatar">JK</div>
+            <button class="edit-avatar-btn" title="Edit profile picture">✏️</button>
+          </div>
+          <div class="profile-info">
+            <h3 id="profile-username">john_khen</h3>
+            <span class="profile-status">Active</span>
+            <small id="profile-joined">Joined June 2026</small>
+          </div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box">
+            <span class="stat-num" id="stat-lost">2</span>
+            <small>Lost Posts</small>
+          </div>
+          <div class="stat-box">
+            <span class="stat-num" id="stat-found">1</span>
+            <small>Found Posts</small>
+          </div>
+          <div class="stat-box">
+            <span class="stat-num" id="stat-resolved">1</span>
+            <small>Resolved</small>
+          </div>
+        </div>
+
+        <div class="profile-posts">
+          <h4>My Posts</h4>
+          <div id="my-posts-list">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+
+        <button class="btn-logout" onclick="navigate('page-login')">Logout</button>
+      </div>
+
+      <nav class="bottom-nav">
+        <button onclick="navigate('page-main')" class="nav-btn">
+          <span>🏠</span><small>Feed</small>
+        </button>
+        <button onclick="navigate('page-post')" class="nav-btn">
+          <span>➕</span><small>Post</small>
+        </button>
+        <button onclick="navigate('page-profile')" class="nav-btn active">
+          <span>👤</span><small>Profile</small>
+        </button>
+        <button id="admin-nav-btn3" onclick="navigate('page-admin')" class="nav-btn" style="display:none">
+          <span>🛡️</span><small>Admin</small>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ========== ADMIN PANEL PAGE ========== -->
+  <div class="page" id="page-admin">
+    <div class="app-layout">
+      <header class="topbar">
+        <div class="topbar-brand">
+          <span>🛡️ Admin Panel</span>
+        </div>
+        <button class="back-btn" onclick="navigate('page-main')">← Feed</button>
+      </header>
+
+      <!-- Summary Stats -->
+      <div class="admin-stats">
+        <div class="admin-stat-box">
+          <span class="admin-stat-num" id="a-total">3</span>
+          <small>Total Users</small>
+        </div>
+        <div class="admin-stat-box pending-color">
+          <span class="admin-stat-num" id="a-pending">2</span>
+          <small>Pending</small>
+        </div>
+        <div class="admin-stat-box active-color">
+          <span class="admin-stat-num" id="a-active">3</span>
+          <small>Active</small>
+        </div>
+        <div class="admin-stat-box resolved-color">
+          <span class="admin-stat-num" id="a-resolved">1</span>
+          <small>Resolved</small>
+        </div>
+      </div>
+
+      <!-- Admin Tabs -->
+      <div class="feed-tabs">
+        <button class="tab-btn active" onclick="switchAdminTab('pending', this)">Pending</button>
+        <button class="tab-btn" onclick="switchAdminTab('active', this)">Active</button>
+        <button class="tab-btn" onclick="switchAdminTab('resolved', this)">Resolved</button>
+      </div>
+
+      <div class="feed-content" id="admin-feed-content">
+        <!-- Injected by JS -->
+      </div>
+
+      <nav class="bottom-nav">
+        <button onclick="navigate('page-main')" class="nav-btn">
+          <span>🏠</span><small>Feed</small>
+        </button>
+        <button onclick="navigate('page-post')" class="nav-btn">
+          <span>➕</span><small>Post</small>
+        </button>
+        <button onclick="navigate('page-profile')" class="nav-btn">
+          <span>👤</span><small>Profile</small>
+        </button>
+        <button onclick="navigate('page-admin')" class="nav-btn active">
+          <span>🛡️</span><small>Admin</small>
+        </button>
+      </nav>
+    </div>
+  </div>
+
+  <!-- ========== POST DETAIL MODAL ========== -->
+  <div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div id="modal-content"></div>
+      <div class="comment-section">
+        <h4>Comments</h4>
+        <div id="modal-comments"></div>
+        <div class="comment-input-row">
+          <input type="text" placeholder="Add a comment..." id="comment-input" />
+          <button onclick="addComment()">Send</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

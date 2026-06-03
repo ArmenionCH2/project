@@ -1,0 +1,354 @@
+// ===== STATE =====
+let currentFeedTab = 'lost';
+let currentAdminTab = 'pending';
+let selectedCategory = 'lost';
+let isAdmin = false;
+
+// Sample post data
+let posts = [
+  {
+    id: 1, category: 'lost', username: 'john_khen', initials: 'JK',
+    itemName: 'Black Umbrella', description: 'Left it near the library entrance, has a wooden handle.',
+    location: 'Main Library, Ground Floor', time: 'June 3, 2026 · 9:14 AM',
+    status: 'active', hasMedia: false, comments: [
+      { user: 'carlo_hilo', initials: 'CH', text: 'Is it a folding type?' }
+    ]
+  },
+  {
+    id: 2, category: 'found', username: 'carlo_hilo', initials: 'CH',
+    itemName: 'Student ID Card', description: 'Found near the canteen. Name on card is partially visible.',
+    location: 'Canteen Area', time: 'June 3, 2026 · 10:02 AM',
+    status: 'active', hasMedia: true, comments: []
+  },
+  {
+    id: 3, category: 'lost', username: 'justin_f', initials: 'JF',
+    itemName: 'Scientific Calculator', description: 'Casio fx-991ES Plus, has a small scratch on the back cover.',
+    location: 'Room 201, Engineering Bldg', time: 'June 2, 2026 · 3:45 PM',
+    status: 'active', hasMedia: false, comments: [
+      { user: 'john_khen', initials: 'JK', text: 'I think I saw one at the lost and found office!' }
+    ]
+  },
+  {
+    id: 4, category: 'found', username: 'john_khen', initials: 'JK',
+    itemName: 'Water Bottle (Blue)', description: 'Tumbler with stickers, found near the gymnasium.',
+    location: 'Gymnasium Entrance', time: 'June 1, 2026 · 1:30 PM',
+    status: 'pending', hasMedia: true, comments: []
+  },
+  {
+    id: 5, category: 'lost', username: 'carlo_hilo', initials: 'CH',
+    itemName: 'Notebook (Math)', description: 'Green spiral notebook, has my name on the cover.',
+    location: 'Room 305, CCS Building', time: 'May 31, 2026 · 11:00 AM',
+    status: 'pending', hasMedia: false, comments: []
+  },
+  {
+    id: 6, category: 'lost', username: 'justin_f', initials: 'JF',
+    itemName: 'Earphones',
+    description: 'White wired earphones, left at the computer lab.',
+    location: 'Computer Lab 1', time: 'May 30, 2026 · 2:15 PM',
+    status: 'resolved', hasMedia: false, comments: []
+  }
+];
+
+// ===== NAVIGATION =====
+function navigate(pageId) {
+  document.querySelectorAll('.page').forEach(p => {
+    p.classList.remove('active');
+    p.style.display = 'none';
+  });
+  const target = document.getElementById(pageId);
+  if (target) {
+    target.style.display = 'flex';
+    requestAnimationFrame(() => target.classList.add('active'));
+  }
+
+  if (pageId === 'page-main') renderFeed();
+  if (pageId === 'page-profile') renderProfile();
+  if (pageId === 'page-admin') renderAdminFeed();
+}
+
+function setAdmin() {
+  isAdmin = true;
+  document.querySelectorAll('[id^="admin-nav-btn"]').forEach(b => b.style.display = 'flex');
+}
+
+// ===== FEED =====
+function switchTab(tab, btn) {
+  currentFeedTab = tab;
+  document.querySelectorAll('#page-main .tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderFeed();
+}
+
+function renderFeed(filter = '') {
+  const container = document.getElementById('feed-content');
+  const filtered = posts.filter(p =>
+    p.category === currentFeedTab &&
+    p.status === 'active' &&
+    (filter === '' ||
+      p.itemName.toLowerCase().includes(filter.toLowerCase()) ||
+      p.description.toLowerCase().includes(filter.toLowerCase()) ||
+      p.location.toLowerCase().includes(filter.toLowerCase()))
+  );
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">${currentFeedTab === 'lost' ? '🔎' : '📦'}</div>
+        <p>No ${currentFeedTab} items found.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map((p, i) => `
+    <div class="post-card" style="animation-delay:${i * 0.05}s" onclick="openModal(${p.id})">
+      <div class="post-card-header">
+        <div class="post-avatar">${p.initials}</div>
+        <div class="post-meta">
+          <div class="post-username">${p.username}</div>
+          <div class="post-time">${p.time}</div>
+        </div>
+        <span class="post-badge badge-${p.category}">${p.category}</span>
+      </div>
+      <div class="post-item-name">${p.itemName}</div>
+      <div class="post-desc">${p.description}</div>
+      <div class="post-location"><span>📍</span> ${p.location}</div>
+      ${p.hasMedia ? `<div class="post-media-thumb">🖼️ Photo attached</div>` : ''}
+    </div>
+  `).join('');
+}
+
+function filterPosts() {
+  const val = document.getElementById('search-input').value;
+  renderFeed(val);
+}
+
+// ===== POST SUBMISSION =====
+function selectCategory(cat) {
+  selectedCategory = cat;
+  document.getElementById('cat-lost').className = 'cat-btn' + (cat === 'lost' ? ' active lost-active' : '');
+  document.getElementById('cat-found').className = 'cat-btn' + (cat === 'found' ? ' active found-active' : '');
+}
+
+// Init category styling
+document.getElementById('cat-lost').className = 'cat-btn active lost-active';
+
+function submitPost() {
+  const name = document.getElementById('post-name').value.trim();
+  const desc = document.getElementById('post-desc').value.trim();
+  const loc = document.getElementById('post-location').value.trim();
+
+  if (!name || !loc) {
+    showToast('⚠️ Item name and location are required.');
+    return;
+  }
+
+  const now = new Date();
+  const timeStr = now.toLocaleDateString('en-PH', { month: 'long', day: 'numeric', year: 'numeric' }) +
+    ' · ' + now.toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+
+  posts.unshift({
+    id: Date.now(),
+    category: selectedCategory,
+    username: 'john_khen',
+    initials: 'JK',
+    itemName: name,
+    description: desc || 'No description provided.',
+    location: loc,
+    time: timeStr,
+    status: 'pending',
+    hasMedia: false,
+    comments: []
+  });
+
+  document.getElementById('post-name').value = '';
+  document.getElementById('post-desc').value = '';
+  document.getElementById('post-location').value = '';
+
+  showToast('✅ Post submitted! Awaiting admin approval.');
+  setTimeout(() => navigate('page-main'), 800);
+}
+
+// ===== MODAL =====
+function openModal(postId) {
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+
+  document.getElementById('modal-content').innerHTML = `
+    <div style="padding-bottom: 4px;">
+      <div class="post-card-header" style="margin-bottom: 12px;">
+        <div class="post-avatar">${post.initials}</div>
+        <div class="post-meta">
+          <div class="post-username">${post.username}</div>
+          <div class="post-time">${post.time}</div>
+        </div>
+        <span class="post-badge badge-${post.category}">${post.category}</span>
+      </div>
+      <div class="post-item-name" style="font-size:20px; margin-bottom: 8px;">${post.itemName}</div>
+      <div class="post-desc" style="font-size: 14px; margin-bottom: 10px;">${post.description}</div>
+      <div class="post-location"><span>📍</span> ${post.location}</div>
+      ${post.hasMedia ? `<div class="post-media-thumb" style="height:180px; margin-top:14px;">🖼️ Photo attached</div>` : ''}
+    </div>
+  `;
+
+  renderModalComments(post);
+  document.getElementById('modal-overlay').classList.add('open');
+
+  // Store current post id for comment adding
+  document.getElementById('modal-overlay').dataset.postId = postId;
+}
+
+function renderModalComments(post) {
+  const container = document.getElementById('modal-comments');
+  if (post.comments.length === 0) {
+    container.innerHTML = `<p style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">No comments yet.</p>`;
+    return;
+  }
+  container.innerHTML = post.comments.map(c => `
+    <div class="comment-item">
+      <div class="comment-avatar">${c.initials}</div>
+      <div class="comment-body">
+        <div class="comment-user">${c.user}</div>
+        <div class="comment-text">${c.text}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addComment() {
+  const input = document.getElementById('comment-input');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const postId = parseInt(document.getElementById('modal-overlay').dataset.postId);
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+
+  post.comments.push({ user: 'john_khen', initials: 'JK', text });
+  input.value = '';
+  renderModalComments(post);
+}
+
+function closeModal() {
+  document.getElementById('modal-overlay').classList.remove('open');
+}
+
+// ===== PROFILE =====
+function renderProfile() {
+  const myPosts = posts.filter(p => p.username === 'john_khen');
+  const container = document.getElementById('my-posts-list');
+
+  document.getElementById('stat-lost').textContent = myPosts.filter(p => p.category === 'lost').length;
+  document.getElementById('stat-found').textContent = myPosts.filter(p => p.category === 'found').length;
+  document.getElementById('stat-resolved').textContent = myPosts.filter(p => p.status === 'resolved').length;
+
+  if (myPosts.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-icon">📋</div><p>No posts yet.</p></div>`;
+    return;
+  }
+
+  container.innerHTML = myPosts.map(p => `
+    <div class="my-post-row">
+      <span class="post-badge badge-${p.status === 'resolved' ? 'resolved' : p.category}" style="flex-shrink:0;">${p.category}</span>
+      <div class="my-post-info">
+        <div class="my-post-name">${p.itemName}</div>
+        <div class="my-post-meta">${p.time} · <span style="color: ${p.status === 'active' ? 'var(--found-color)' : p.status === 'pending' ? 'var(--pending-color)' : 'var(--text-muted)'}">${p.status}</span></div>
+      </div>
+      ${p.status === 'active' ?
+        `<button class="btn-resolve-own" onclick="resolvePost(${p.id})">Resolve</button>` :
+        ''}
+    </div>
+  `).join('');
+}
+
+function resolvePost(postId) {
+  const post = posts.find(p => p.id === postId);
+  if (post) {
+    post.status = 'resolved';
+    renderProfile();
+    showToast('✅ Post marked as resolved!');
+  }
+}
+
+// ===== ADMIN PANEL =====
+function switchAdminTab(tab, btn) {
+  currentAdminTab = tab;
+  document.querySelectorAll('#page-admin .tab-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAdminFeed();
+}
+
+function renderAdminFeed() {
+  const container = document.getElementById('admin-feed-content');
+  const filtered = posts.filter(p => p.status === currentAdminTab);
+
+  // Update stat boxes
+  document.getElementById('a-pending').textContent = posts.filter(p => p.status === 'pending').length;
+  document.getElementById('a-active').textContent = posts.filter(p => p.status === 'active').length;
+  document.getElementById('a-resolved').textContent = posts.filter(p => p.status === 'resolved').length;
+
+  if (filtered.length === 0) {
+    container.innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">📭</div>
+        <p>No ${currentAdminTab} posts.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = filtered.map((p, i) => `
+    <div class="post-card" style="animation-delay:${i * 0.05}s; cursor:default;">
+      <div class="post-card-header">
+        <div class="post-avatar">${p.initials}</div>
+        <div class="post-meta">
+          <div class="post-username">${p.username}</div>
+          <div class="post-time">${p.time}</div>
+        </div>
+        <span class="post-badge badge-${p.category}">${p.category}</span>
+      </div>
+      <div class="post-item-name">${p.itemName}</div>
+      <div class="post-desc">${p.description}</div>
+      <div class="post-location"><span>📍</span> ${p.location}</div>
+      ${currentAdminTab === 'pending' ? `
+        <div class="post-actions">
+          <button class="btn-approve" onclick="adminAction(${p.id}, 'approve')">✓ Approve</button>
+          <button class="btn-reject" onclick="adminAction(${p.id}, 'reject')">✕ Reject</button>
+        </div>
+      ` : currentAdminTab === 'active' ? `
+        <div class="post-actions">
+          <button class="btn-resolve-admin" disabled>🔒 Reporter resolves only</button>
+        </div>
+      ` : ''}
+    </div>
+  `).join('');
+}
+
+function adminAction(postId, action) {
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+
+  if (action === 'approve') {
+    post.status = 'active';
+    showToast('✅ Post approved and published!');
+  } else if (action === 'reject') {
+    posts = posts.filter(p => p.id !== postId);
+    showToast('🗑️ Post rejected and removed.');
+  }
+
+  renderAdminFeed();
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  let toast = document.querySelector('.toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2500);
+}
+
+// ===== INIT =====
+navigate('page-register');
