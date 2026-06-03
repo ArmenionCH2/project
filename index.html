@@ -9,7 +9,6 @@
 </head>
 <body>
 
-  <!-- ========== REGISTER PAGE ========== -->
   <div class="page active" id="page-register">
     <div class="auth-container">
       <div class="auth-brand">
@@ -41,7 +40,6 @@
     </div>
   </div>
 
-  <!-- ========== LOGIN PAGE ========== -->
   <div class="page" id="page-login">
     <div class="auth-container">
       <div class="auth-brand">
@@ -69,7 +67,6 @@
     </div>
   </div>
 
-  <!-- ========== FORGOT PASSWORD PAGE ========== -->
   <div class="page" id="page-forgot">
     <div class="auth-container">
       <div class="auth-brand">
@@ -90,15 +87,12 @@
     </div>
   </div>
 
-  <!-- ========== MAIN NEWSFEED PAGE ========== -->
   <div class="page" id="page-main">
     <div class="app-layout">
-
-      <!-- Top Bar -->
       <header class="topbar">
         <div class="topbar-brand">
           <span class="brand-icon-sm">🔍</span>
-          <span>Lost<b>&</b>Found</span>
+          <span class="brand-text">Lost<b>&</b>Found</span>
         </div>
         <div class="search-bar">
           <input type="text" placeholder="Search items..." id="search-input" oninput="filterPosts()" />
@@ -106,18 +100,16 @@
         </div>
       </header>
 
-      <!-- Feed Tabs -->
       <div class="feed-tabs">
         <button class="tab-btn active" onclick="switchTab('lost', this)">Lost Feed</button>
         <button class="tab-btn" onclick="switchTab('found', this)">Found Feed</button>
       </div>
 
-      <!-- Feed Content -->
-      <div class="feed-content" id="feed-content">
-        <!-- Posts injected by JS -->
+      <div class="feed-scroll-container">
+        <div class="feed-content" id="feed-content">
+          </div>
       </div>
 
-      <!-- Bottom Nav -->
       <nav class="bottom-nav">
         <button onclick="navigate('page-main')" class="nav-btn active">
           <span>🏠</span><small>Feed</small>
@@ -135,7 +127,6 @@
     </div>
   </div>
 
-  <!-- ========== POST PAGE ========== -->
   <div class="page" id="page-post">
     <div class="app-layout">
       <header class="topbar">
@@ -143,32 +134,34 @@
         <span class="topbar-title">Report Item</span>
       </header>
 
-      <div class="post-form-wrap">
-        <div class="category-toggle">
-          <button class="cat-btn active" id="cat-lost" onclick="selectCategory('lost')">Lost Item</button>
-          <button class="cat-btn" id="cat-found" onclick="selectCategory('found')">Found Item</button>
-        </div>
-
-        <div class="form-group">
-          <label>Item Name</label>
-          <input type="text" placeholder="item name inputable (char)" id="post-name" />
-        </div>
-        <div class="form-group">
-          <label>Description</label>
-          <textarea placeholder="description inputable (char)" id="post-desc" rows="3"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Location Found/Lost</label>
-          <input type="text" placeholder="location found/lost inputable (char)" id="post-location" />
-        </div>
-        <div class="form-group">
-          <label>Media Upload</label>
-          <div class="media-upload-box">
-            <span>📎 Tap to upload (png, jpeg, mp4)</span>
-            <input type="file" accept=".png,.jpeg,.jpg,.mp4" style="opacity:0;position:absolute;inset:0;cursor:pointer;" />
+      <div class="feed-scroll-container">
+        <div class="post-form-wrap">
+          <div class="category-toggle">
+            <button class="cat-btn active" id="cat-lost" onclick="selectCategory('lost')">Lost Item</button>
+            <button class="cat-btn" id="cat-found" onclick="selectCategory('found')">Found Item</button>
           </div>
+
+          <div class="form-group">
+            <label>Item Name</label>
+            <input type="text" placeholder="item name inputable (char)" id="post-name" />
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea placeholder="description inputable (char)" id="post-desc" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Location Found/Lost</label>
+            <input type="text" placeholder="location found/lost inputable (char)" id="post-location" />
+          </div>
+          <div class="form-group">
+            <label>Media Upload</label>
+            <div class="media-upload-box">
+              <span>📎 Tap to upload (png, jpeg, mp4)</span>
+              <input type="file" accept=".png,.jpeg,.jpg,.mp4" style="opacity:0;position:absolute;inset:0;cursor:pointer;" />
+            </div>
+          </div>
+          <button class="btn-primary" onclick="submitPost()">Submit Post</button>
         </div>
-        <button class="btn-primary" onclick="submitPost()">Submit Post</button>
       </div>
 
       <nav class="bottom-nav">
@@ -188,7 +181,6 @@
     </div>
   </div>
 
-  <!-- ========== PROFILE PAGE ========== -->
   <div class="page" id="page-profile">
     <div class="app-layout">
       <header class="topbar">
@@ -196,42 +188,43 @@
         <span class="topbar-title">Profile</span>
       </header>
 
-      <div class="profile-wrap">
-        <div class="profile-header">
-          <div class="avatar-wrap">
-            <div class="avatar" id="profile-avatar">JK</div>
-            <button class="edit-avatar-btn" title="Edit profile picture">✏️</button>
+      <div class="feed-scroll-container">
+        <div class="profile-wrap">
+          <div class="profile-header">
+            <div class="avatar-wrap">
+              <div class="avatar" id="profile-avatar">JK</div>
+              <button class="edit-avatar-btn" title="Edit profile picture">✏️</button>
+            </div>
+            <div class="profile-info">
+              <h3 id="profile-username">john_khen</h3>
+              <span class="profile-status">Active</span>
+              <small id="profile-joined">Joined June 2026</small>
+            </div>
           </div>
-          <div class="profile-info">
-            <h3 id="profile-username">john_khen</h3>
-            <span class="profile-status">Active</span>
-            <small id="profile-joined">Joined June 2026</small>
-          </div>
-        </div>
 
-        <div class="stats-row">
-          <div class="stat-box">
-            <span class="stat-num" id="stat-lost">2</span>
-            <small>Lost Posts</small>
+          <div class="stats-row">
+            <div class="stat-box">
+              <span class="stat-num" id="stat-lost">0</span>
+              <small>Lost</small>
+            </div>
+            <div class="stat-box">
+              <span class="stat-num" id="stat-found">0</span>
+              <small>Found</small>
+            </div>
+            <div class="stat-box">
+              <span class="stat-num" id="stat-resolved">0</span>
+              <small>Resolved</small>
+            </div>
           </div>
-          <div class="stat-box">
-            <span class="stat-num" id="stat-found">1</span>
-            <small>Found Posts</small>
-          </div>
-          <div class="stat-box">
-            <span class="stat-num" id="stat-resolved">1</span>
-            <small>Resolved</small>
-          </div>
-        </div>
 
-        <div class="profile-posts">
-          <h4>My Posts</h4>
-          <div id="my-posts-list">
-            <!-- Injected by JS -->
+          <div class="profile-posts">
+            <h4>My Posts</h4>
+            <div id="my-posts-list">
+              </div>
           </div>
-        </div>
 
-        <button class="btn-logout" onclick="navigate('page-login')">Logout</button>
+          <button class="btn-logout" onclick="navigate('page-login')">Logout</button>
+        </div>
       </div>
 
       <nav class="bottom-nav">
@@ -251,7 +244,6 @@
     </div>
   </div>
 
-  <!-- ========== ADMIN PANEL PAGE ========== -->
   <div class="page" id="page-admin">
     <div class="app-layout">
       <header class="topbar">
@@ -261,35 +253,34 @@
         <button class="back-btn" onclick="navigate('page-main')">← Feed</button>
       </header>
 
-      <!-- Summary Stats -->
-      <div class="admin-stats">
-        <div class="admin-stat-box">
-          <span class="admin-stat-num" id="a-total">3</span>
-          <small>Total Users</small>
+      <div class="feed-scroll-container">
+        <div class="admin-stats">
+          <div class="admin-stat-box">
+            <span class="admin-stat-num" id="a-total">3</span>
+            <small>Total Users</small>
+          </div>
+          <div class="admin-stat-box pending-color">
+            <span class="admin-stat-num" id="a-pending">0</span>
+            <small>Pending</small>
+          </div>
+          <div class="admin-stat-box active-color">
+            <span class="admin-stat-num" id="a-active">0</span>
+            <small>Active</small>
+          </div>
+          <div class="admin-stat-box resolved-color">
+            <span class="admin-stat-num" id="a-resolved">0</span>
+            <small>Resolved</small>
+          </div>
         </div>
-        <div class="admin-stat-box pending-color">
-          <span class="admin-stat-num" id="a-pending">2</span>
-          <small>Pending</small>
-        </div>
-        <div class="admin-stat-box active-color">
-          <span class="admin-stat-num" id="a-active">3</span>
-          <small>Active</small>
-        </div>
-        <div class="admin-stat-box resolved-color">
-          <span class="admin-stat-num" id="a-resolved">1</span>
-          <small>Resolved</small>
-        </div>
-      </div>
 
-      <!-- Admin Tabs -->
-      <div class="feed-tabs">
-        <button class="tab-btn active" onclick="switchAdminTab('pending', this)">Pending</button>
-        <button class="tab-btn" onclick="switchAdminTab('active', this)">Active</button>
-        <button class="tab-btn" onclick="switchAdminTab('resolved', this)">Resolved</button>
-      </div>
+        <div class="feed-tabs">
+          <button class="tab-btn active" onclick="switchAdminTab('pending', this)">Pending</button>
+          <button class="tab-btn" onclick="switchAdminTab('active', this)">Active</button>
+          <button class="tab-btn" onclick="switchAdminTab('resolved', this)">Resolved</button>
+        </div>
 
-      <div class="feed-content" id="admin-feed-content">
-        <!-- Injected by JS -->
+        <div class="feed-content" id="admin-feed-content">
+          </div>
       </div>
 
       <nav class="bottom-nav">
@@ -306,22 +297,6 @@
           <span>🛡️</span><small>Admin</small>
         </button>
       </nav>
-    </div>
-  </div>
-
-  <!-- ========== POST DETAIL MODAL ========== -->
-  <div class="modal-overlay" id="modal-overlay" onclick="closeModal()">
-    <div class="modal-card" onclick="event.stopPropagation()">
-      <button class="modal-close" onclick="closeModal()">✕</button>
-      <div id="modal-content"></div>
-      <div class="comment-section">
-        <h4>Comments</h4>
-        <div id="modal-comments"></div>
-        <div class="comment-input-row">
-          <input type="text" placeholder="Add a comment..." id="comment-input" />
-          <button onclick="addComment()">Send</button>
-        </div>
-      </div>
     </div>
   </div>
 
