@@ -4,6 +4,9 @@ let currentAdminTab = 'pending';
 let selectedCategory = 'lost';
 let isAdmin = false;
 
+// Global tracker to preserve open state of dropdown comment threads during feed re-renders
+let openCommentsState = {};
+
 // Sample post data
 let posts = [
   {
@@ -99,8 +102,10 @@ function renderFeed(filter = '') {
     return;
   }
 
-  container.innerHTML = filtered.map((p, i) => `
-    <div class="post-card" style="animation-delay:${i * 0.05}s" onclick="openModal(${p.id})">
+  container.innerHTML = filtered.map((p, i) => {
+    const isCommentsOpen = openCommentsState[p.id] || false;
+    return `
+    <div class="post-card" style="animation-delay:${i * 0.05}s">
       <div class="post-card-header">
         <div class="post-avatar">${p.initials}</div>
         <div class="post-meta">
@@ -113,13 +118,72 @@ function renderFeed(filter = '') {
       <div class="post-desc">${p.description}</div>
       <div class="post-location"><span>📍</span> ${p.location}</div>
       ${p.hasMedia ? `<div class="post-media-thumb"><img src="${p.image}" alt="${p.itemName}" onerror="this.parentElement.innerHTML='🖼️ Photo attached'" /></div>` : ''}
+      
+      <div class="dropdown-toggle-bar" onclick="toggleCommentsDropdown(${p.id})">
+        <span class="toggle-text">💬 Comments (${p.comments.length})</span>
+        <span class="toggle-arrow ${isCommentsOpen ? 'rotated' : ''}">▼</span>
+      </div>
+
+      <div class="comments-dropdown-wrapper ${isCommentsOpen ? 'open' : ''}" id="dropdown-${p.id}">
+        <div class="dropdown-inner-content">
+          <div class="comments-stack">
+            ${p.comments.length === 0 ? 
+              `<p class="no-comments-msg">No comments yet. Start the conversation!</p>` : 
+              p.comments.map(c => `
+                <div class="comment-item">
+                  <div class="comment-avatar">${c.initials}</div>
+                  <div class="comment-body">
+                    <div class="comment-user">${c.user}</div>
+                    <div class="comment-text">${c.text}</div>
+                  </div>
+                </div>
+              `).join('')
+            }
+          </div>
+          <div class="comment-input-row">
+            <input type="text" placeholder="Add a comment..." id="input-${p.id}" onkeypress="if(event.key==='Enter') addDropdownComment(${p.id})" />
+            <button onclick="addDropdownComment(${p.id})">Send</button>
+          </div>
+        </div>
+      </div>
     </div>
-  `).join('');
+  `}).join('');
 }
 
 function filterPosts() {
   const val = document.getElementById('search-input').value;
   renderFeed(val);
+}
+
+// ===== INTERACTIVE DROPDOWN DRIVERS =====
+function toggleCommentsDropdown(postId) {
+  const wrapper = document.getElementById(`dropdown-${postId}`);
+  const arrow = wrapper.previousElementSibling.querySelector('.toggle-arrow');
+  
+  if (wrapper.classList.contains('open')) {
+    wrapper.classList.remove('open');
+    arrow.classList.remove('rotated');
+    openCommentsState[postId] = false;
+  } else {
+    wrapper.classList.add('open');
+    arrow.classList.add('rotated');
+    openCommentsState[postId] = true;
+  }
+}
+
+function addDropdownComment(postId) {
+  const input = document.getElementById(`input-${postId}`);
+  const text = input.value.trim();
+  if (!text) return;
+
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+
+  post.comments.push({ user: 'john_khen', initials: 'JK', text });
+  input.value = '';
+  
+  // Refresh standard layout
+  renderFeed(document.getElementById('search-input').value);
 }
 
 // ===== POST SUBMISSION =====
@@ -130,7 +194,9 @@ function selectCategory(cat) {
 }
 
 // Init category styling
-document.getElementById('cat-lost').className = 'cat-btn active lost-active';
+if (document.getElementById('cat-lost')) {
+  document.getElementById('cat-lost').className = 'cat-btn active lost-active';
+}
 
 function submitPost() {
   const name = document.getElementById('post-name').value.trim();
@@ -166,70 +232,6 @@ function submitPost() {
 
   showToast('✅ Post submitted! Awaiting admin approval.');
   setTimeout(() => navigate('page-main'), 800);
-}
-
-// ===== MODAL =====
-function openModal(postId) {
-  const post = posts.find(p => p.id === postId);
-  if (!post) return;
-
-  document.getElementById('modal-content').innerHTML = `
-    <div style="padding-bottom: 4px;">
-      <div class="post-card-header" style="margin-bottom: 12px;">
-        <div class="post-avatar">${post.initials}</div>
-        <div class="post-meta">
-          <div class="post-username">${post.username}</div>
-          <div class="post-time">${post.time}</div>
-        </div>
-        <span class="post-badge badge-${post.category}">${post.category}</span>
-      </div>
-      <div class="post-item-name" style="font-size:20px; margin-bottom: 8px;">${post.itemName}</div>
-      <div class="post-desc" style="font-size: 14px; margin-bottom: 10px;">${post.description}</div>
-      <div class="post-location"><span>📍</span> ${post.location}</div>
-      ${post.hasMedia ? `<div class="post-media-thumb" style="height:180px; margin-top:14px;"><img src="${post.image}" alt="${post.itemName}" onerror="this.parentElement.innerHTML='🖼️ Photo attached'" /></div>` : ''}
-    </div>
-  `;
-
-  renderModalComments(post);
-  document.getElementById('modal-overlay').classList.add('open');
-
-  // Store current post id for comment adding
-  document.getElementById('modal-overlay').dataset.postId = postId;
-}
-
-function renderModalComments(post) {
-  const container = document.getElementById('modal-comments');
-  if (post.comments.length === 0) {
-    container.innerHTML = `<p style="font-size:13px; color:var(--text-muted); margin-bottom:8px;">No comments yet.</p>`;
-    return;
-  }
-  container.innerHTML = post.comments.map(c => `
-    <div class="comment-item">
-      <div class="comment-avatar">${c.initials}</div>
-      <div class="comment-body">
-        <div class="comment-user">${c.user}</div>
-        <div class="comment-text">${c.text}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function addComment() {
-  const input = document.getElementById('comment-input');
-  const text = input.value.trim();
-  if (!text) return;
-
-  const postId = parseInt(document.getElementById('modal-overlay').dataset.postId);
-  const post = posts.find(p => p.id === postId);
-  if (!post) return;
-
-  post.comments.push({ user: 'john_khen', initials: 'JK', text });
-  input.value = '';
-  renderModalComments(post);
-}
-
-function closeModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
 }
 
 // ===== PROFILE =====
